@@ -1,27 +1,53 @@
+import * as THREE from 'three';
+import type { WeaponConfig, WeaponState, WeaponModifier, WeaponRarity, WeaponType, Projectile, SpecialEffect } from '@/types/game';
+
 export class Weapon {
-    constructor(config) {
+    // Basic properties
+    private readonly name: string;
+    private readonly type: WeaponType;
+    private readonly rarity: WeaponRarity;
+    private readonly description: string;
+
+    // Combat stats
+    private readonly damage: number;
+    private readonly fireRate: number; // shots per second
+    private readonly reloadTime: number; // seconds
+    private readonly magazineSize: number;
+    private readonly accuracy: number; // 0.0 to 1.0
+    private readonly range: number;
+    private readonly pelletsPerShot: number; // for shotguns
+
+    // Current state
+    private state: WeaponState;
+
+    // Special properties
+    private readonly modifiers: WeaponModifier[];
+    private readonly specialEffects: SpecialEffect[];
+
+    constructor(config: WeaponConfig) {
         // Basic properties
         this.name = config.name || 'Unknown Weapon';
         this.type = config.type || 'pistol';
-        this.template = config.template || 'pistol';
         this.rarity = config.rarity || 'common';
         this.description = config.description || '';
 
         // Combat stats
         this.damage = config.damage || 25;
-        this.fireRate = config.fireRate || 3; // shots per second
-        this.reloadTime = config.reloadTime || 1.5; // seconds
+        this.fireRate = config.fireRate || 3;
+        this.reloadTime = config.reloadTime || 1.5;
         this.magazineSize = config.magazineSize || 12;
-        this.accuracy = config.accuracy || 0.9; // 0.0 to 1.0
+        this.accuracy = config.accuracy || 0.9;
         this.range = config.range || 30;
-        this.pelletsPerShot = config.pelletsPerShot || 1; // for shotguns
+        this.pelletsPerShot = config.pelletsPerShot || 1;
 
-        // Current state
-        this.currentAmmo = this.magazineSize;
-        this.reserveAmmo = this.magazineSize * 3; // Starting ammo
-        this.isReloading = false;
-        this.reloadTimer = 0;
-        this.fireTimer = 0;
+        // Initialize state
+        this.state = {
+            currentAmmo: this.magazineSize,
+            reserveAmmo: this.magazineSize * 3, // Starting ammo
+            isReloading: false,
+            reloadTimer: 0,
+            fireTimer: 0
+        };
 
         // Special properties
         this.modifiers = config.modifiers || [];
@@ -30,8 +56,8 @@ export class Weapon {
         console.log(`🔫 Created weapon: ${this.name}`);
     }
 
-    extractSpecialEffects() {
-        const effects = [];
+    private extractSpecialEffects(): SpecialEffect[] {
+        const effects: SpecialEffect[] = [];
         this.modifiers.forEach(modifier => {
             if (modifier.special) {
                 effects.push(modifier.special);
@@ -41,44 +67,44 @@ export class Weapon {
     }
 
     // Core weapon actions
-    canShoot() {
-        return !this.isReloading &&
-               this.currentAmmo > 0 &&
-               this.fireTimer <= 0;
+    public canShoot(): boolean {
+        return !this.state.isReloading &&
+               this.state.currentAmmo > 0 &&
+               this.state.fireTimer <= 0;
     }
 
-    shoot() {
+    public shoot(): boolean {
         if (!this.canShoot()) {
             return false;
         }
 
         // Consume ammo
-        this.currentAmmo--;
+        this.state.currentAmmo--;
 
         // Set fire rate timer
-        this.fireTimer = 1 / this.fireRate;
+        this.state.fireTimer = 1 / this.fireRate;
 
         // Apply special effects
         this.applyShootEffects();
 
-        console.log(`💥 ${this.name} fired! Ammo: ${this.currentAmmo}/${this.magazineSize}`);
+        console.log(`💥 ${this.name} fired! Ammo: ${this.state.currentAmmo}/${this.magazineSize}`);
 
         return true;
     }
 
-    canReload() {
-        return !this.isReloading &&
-               this.currentAmmo < this.magazineSize &&
-               this.reserveAmmo > 0;
+    public canReload(): boolean {
+        return !this.state.isReloading &&
+               this.state.currentAmmo < this.magazineSize &&
+               this.state.reserveAmmo > 0;
     }
 
-    reload() {
+    public reload(): boolean {
         if (!this.canReload()) {
             return false;
         }
 
-        this.isReloading = true;
-        this.reloadTimer = this.reloadTime;
+        this.state.isReloading = true;
+        this.state.reloadTimer = this.reloadTime;
 
         console.log(`🔄 Reloading ${this.name}...`);
 
@@ -86,37 +112,37 @@ export class Weapon {
     }
 
     // Update weapon state
-    update(deltaTime) {
+    public update(deltaTime: number): void {
         // Update fire rate timer
-        if (this.fireTimer > 0) {
-            this.fireTimer -= deltaTime;
+        if (this.state.fireTimer > 0) {
+            this.state.fireTimer -= deltaTime;
         }
 
         // Update reload timer
-        if (this.isReloading) {
-            this.reloadTimer -= deltaTime;
+        if (this.state.isReloading) {
+            this.state.reloadTimer -= deltaTime;
 
-            if (this.reloadTimer <= 0) {
+            if (this.state.reloadTimer <= 0) {
                 this.finishReload();
             }
         }
     }
 
-    finishReload() {
-        const ammoNeeded = this.magazineSize - this.currentAmmo;
-        const ammoToReload = Math.min(ammoNeeded, this.reserveAmmo);
+    private finishReload(): void {
+        const ammoNeeded = this.magazineSize - this.state.currentAmmo;
+        const ammoToReload = Math.min(ammoNeeded, this.state.reserveAmmo);
 
-        this.currentAmmo += ammoToReload;
-        this.reserveAmmo -= ammoToReload;
+        this.state.currentAmmo += ammoToReload;
+        this.state.reserveAmmo -= ammoToReload;
 
-        this.isReloading = false;
-        this.reloadTimer = 0;
+        this.state.isReloading = false;
+        this.state.reloadTimer = 0;
 
-        console.log(`✅ ${this.name} reloaded! Ammo: ${this.currentAmmo}/${this.magazineSize}`);
+        console.log(`✅ ${this.name} reloaded! Ammo: ${this.state.currentAmmo}/${this.magazineSize}`);
     }
 
     // Special effect applications
-    applyShootEffects() {
+    private applyShootEffects(): void {
         this.specialEffects.forEach(effect => {
             switch (effect) {
                 case 'explosion':
@@ -125,7 +151,7 @@ export class Weapon {
                 case 'fire':
                     this.createFireEffect();
                     break;
-                case 'electric':
+                case 'chain':
                     this.createElectricEffect();
                     break;
                 case 'pierce':
@@ -141,52 +167,64 @@ export class Weapon {
         });
     }
 
-    createExplosion() {
+    private createExplosion(): void {
         console.log('💥 Explosive round detonated!');
         // TODO: Create explosion visual and damage area
     }
 
-    createFireEffect() {
+    private createFireEffect(): void {
         console.log('🔥 Incendiary round ignited!');
         // TODO: Create fire particle effect
     }
 
-    createElectricEffect() {
+    private createElectricEffect(): void {
         console.log('⚡ Electric shot chains!');
         // TODO: Create electric chain effect
     }
 
-    createPierceEffect() {
+    private createPierceEffect(): void {
         console.log('🎯 Piercing shot penetrates!');
         // TODO: Implement piercing damage
     }
 
-    applyLifesteal() {
+    private applyLifesteal(): void {
         console.log('🩸 Vampiric shot heals player!');
         // TODO: Heal player on hit
     }
 
-    handleBurstFire() {
+    private handleBurstFire(): void {
         console.log('💨 Burst fire activated!');
         // TODO: Implement burst fire mechanics
     }
 
     // Ammo management
-    addAmmo(amount) {
-        this.reserveAmmo += amount;
-        console.log(`📦 Added ${amount} ammo to ${this.name}. Reserve: ${this.reserveAmmo}`);
+    public addAmmo(amount: number): void {
+        this.state.reserveAmmo += amount;
+        console.log(`📦 Added ${amount} ammo to ${this.name}. Reserve: ${this.state.reserveAmmo}`);
     }
 
-    hasAmmo() {
-        return this.currentAmmo > 0 || this.reserveAmmo > 0;
+    public hasAmmo(): boolean {
+        return this.state.currentAmmo > 0 || this.state.reserveAmmo > 0;
     }
 
-    getTotalAmmo() {
-        return this.currentAmmo + this.reserveAmmo;
+    public getTotalAmmo(): number {
+        return this.state.currentAmmo + this.state.reserveAmmo;
     }
 
     // Weapon information
-    getStats() {
+    public getStats(): {
+        name: string;
+        type: WeaponType;
+        rarity: WeaponRarity;
+        damage: number;
+        fireRate: number;
+        reloadTime: number;
+        magazineSize: number;
+        accuracy: number;
+        range: number;
+        modifiers: string[];
+        specialEffects: SpecialEffect[];
+    } {
         return {
             name: this.name,
             type: this.type,
@@ -202,8 +240,8 @@ export class Weapon {
         };
     }
 
-    getDisplayName() {
-        const rarityColors = {
+    public getDisplayName(): { name: string; color: string } {
+        const rarityColors: Record<WeaponRarity, string> = {
             'common': '#ffffff',
             'uncommon': '#00ff00',
             'rare': '#0080ff',
@@ -213,11 +251,11 @@ export class Weapon {
 
         return {
             name: this.name,
-            color: rarityColors[this.rarity] || '#ffffff'
+            color: rarityColors[this.rarity]
         };
     }
 
-    getDescription() {
+    public getDescription(): string {
         let desc = this.description;
 
         if (this.modifiers.length > 0) {
@@ -231,18 +269,18 @@ export class Weapon {
     }
 
     // Weapon actions for player
-    equip() {
+    public equip(): void {
         console.log(`🎯 Equipped ${this.name}`);
         // TODO: Add weapon model to scene if needed
     }
 
-    holster() {
+    public holster(): void {
         console.log(`📥 Holstered ${this.name}`);
         // TODO: Remove weapon model from scene if needed
     }
 
     // Calculate damage with modifiers
-    calculateDamage() {
+    public calculateDamage(): number {
         let finalDamage = this.damage;
 
         // Apply accuracy-based damage variation
@@ -262,8 +300,8 @@ export class Weapon {
     }
 
     // Create projectile data for rendering
-    createProjectile(startPosition, direction) {
-        const projectiles = [];
+    public createProjectile(startPosition: THREE.Vector3, direction: THREE.Vector3): Projectile[] {
+        const projectiles: Projectile[] = [];
 
         for (let i = 0; i < this.pelletsPerShot; i++) {
             // Add accuracy spread
@@ -291,26 +329,74 @@ export class Weapon {
     }
 
     // Upgrade weapon (for future meta-progression)
-    upgrade(upgradeType) {
+    public upgrade(upgradeType: 'damage' | 'fireRate' | 'accuracy' | 'magazine' | 'reload'): void {
+        // Note: This mutates the weapon, which breaks immutability
+        // In a real implementation, this should create a new weapon instance
         switch (upgradeType) {
             case 'damage':
-                this.damage = Math.floor(this.damage * 1.1);
+                (this as any).damage = Math.floor(this.damage * 1.1);
                 break;
             case 'fireRate':
-                this.fireRate *= 1.1;
+                (this as any).fireRate *= 1.1;
                 break;
             case 'accuracy':
-                this.accuracy = Math.min(0.99, this.accuracy * 1.05);
+                (this as any).accuracy = Math.min(0.99, this.accuracy * 1.05);
                 break;
             case 'magazine':
-                this.magazineSize = Math.floor(this.magazineSize * 1.2);
-                this.currentAmmo = this.magazineSize;
+                (this as any).magazineSize = Math.floor(this.magazineSize * 1.2);
+                this.state.currentAmmo = this.magazineSize;
                 break;
             case 'reload':
-                this.reloadTime *= 0.9;
+                (this as any).reloadTime *= 0.9;
                 break;
         }
 
         console.log(`⬆️ Upgraded ${this.name} (${upgradeType})`);
+    }
+
+    // Getters
+    public getName(): string {
+        return this.name;
+    }
+
+    public getType(): WeaponType {
+        return this.type;
+    }
+
+    public getRarity(): WeaponRarity {
+        return this.rarity;
+    }
+
+    public getCurrentAmmo(): number {
+        return this.state.currentAmmo;
+    }
+
+    public getReserveAmmo(): number {
+        return this.state.reserveAmmo;
+    }
+
+    public getMagazineSize(): number {
+        return this.magazineSize;
+    }
+
+    public isReloading(): boolean {
+        return this.state.isReloading;
+    }
+
+    public getState(): WeaponState {
+        return { ...this.state };
+    }
+
+    public getModifiers(): WeaponModifier[] {
+        return [...this.modifiers];
+    }
+
+    public getSpecialEffects(): SpecialEffect[] {
+        return [...this.specialEffects];
+    }
+
+    // Cleanup
+    public destroy(): void {
+        console.log(`🧹 Weapon ${this.name} destroyed`);
     }
 }

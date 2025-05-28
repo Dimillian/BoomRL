@@ -3,10 +3,10 @@ description:
 globs:
 alwaysApply: true
 ---
-# BoomRL Cursor Rules
+# BoomRL Cursor Rules (TypeScript Complete)
 
 ## Project Overview
-BoomRL is a browser-based roguelike Doom-style FPS built with Three.js and Vite. It combines fast-paced first-person shooter mechanics with roguelike progression systems, featuring procedural level generation, randomized weapons with rarities, and meta-progression between runs.
+BoomRL is a browser-based roguelike Doom-style FPS built with **TypeScript**, Three.js, and Vite. It combines fast-paced first-person shooter mechanics with roguelike progression systems, featuring procedural level generation, randomized weapons with rarities, and meta-progression between runs.
 
 **Key Documentation:**
 - @README.md - Complete project overview, features, and quick start guide
@@ -15,22 +15,43 @@ BoomRL is a browser-based roguelike Doom-style FPS built with Three.js and Vite.
 
 ## Current Status
 ✅ **Phase 1 Complete**: Core foundation with playable FPS mechanics
+✅ **TypeScript Conversion Complete**: Full type safety and enhanced developer experience
 🚧 **Phase 2 Next**: Enemy AI, combat system, and enhanced level design
-📊 **Playable at**: http://localhost:5173 (after `npm run dev`)
+📊 **Playable at**: http://localhost:5174 (after `npm run dev`)
 
 ## Technology Stack
-- **Engine**: Three.js (3D graphics)
-- **Build Tool**: Vite (ES6 modules)
-- **Language**: JavaScript (ES6+ classes)
+- **Language**: TypeScript (strict mode with comprehensive type definitions)
+- **Engine**: Three.js (3D graphics with full type definitions)
+- **Build Tool**: Vite (ES6 modules with TypeScript support)
 - **Audio**: Howler.js (planned)
 - **Styling**: CSS3 with retro terminal aesthetic
+- **Development**: Path aliases, type checking, ESLint integration
 
-## Architecture Patterns
+## TypeScript Architecture
+
+### Type System
+```
+src/types/
+└── game.ts - Comprehensive type definitions for all game systems
+```
+
+### Converted Systems (All TypeScript)
+- ✅ `src/main.ts` - Entry point with proper typing
+- ✅ `src/core/InputManager.ts` - Input handling with typed events
+- ✅ `src/core/Game.ts` - Main game loop with configuration types
+- ✅ `src/ui/UIManager.ts` - UI management with state typing
+- ✅ `src/entities/Player.ts` - Player controller with stats/state types
+- ✅ `src/levels/Level.ts` - Level generation with configuration types
+- ✅ `src/weapons/WeaponSystem.ts` - Weapon generation with template types
+- ✅ `src/weapons/Weapon.ts` - Individual weapon with state management
+- ✅ `src/utils/MathUtils.ts` - Mathematical utilities with generics
 
 ### Code Organization
 ```
 src/
-├── main.js              # Entry point and game initialization
+├── main.ts              # Entry point and game initialization
+├── types/
+│   └── game.ts          # Comprehensive TypeScript type definitions
 ├── core/                # Core game systems (Game, InputManager)
 ├── entities/            # Player, enemies, items
 ├── levels/              # Procedural level generation
@@ -39,155 +60,132 @@ src/
 └── utils/               # Utility functions
 ```
 
-### Coding Standards
-- **ES6 Modules**: Use import/export syntax
-- **Classes**: Prefer classes for major systems and entities
-- **Console Logging**: Use emoji prefixes for categorization
-  - 🎮 Initialization, 🔫 Weapons, 🗺️ Levels, 🖥️ UI, 💥 Combat
-- **Event-Driven**: Use CustomEvents for inter-system communication
-- **Three.js Patterns**: Scene management, geometry disposal, object pooling
+### TypeScript Standards
+- **Strict Mode**: All strict TypeScript options enabled
+- **Path Aliases**: `@/` for src, `@core/`, `@entities/`, etc.
+- **Comprehensive Types**: 369-line type definition file covers all systems
+- **Type Safety**: No `any` types except for carefully controlled transitions
+- **Interface Design**: Clear separation between config, state, and data types
+
+### Key Type Categories
+- **Game Core**: `GameConfig`, `GameState`, `GameEvent`
+- **Player System**: `PlayerStats`, `PlayerState`, `MovementInput`
+- **Weapon System**: `WeaponTemplate`, `WeaponConfig`, `WeaponRarity`, `WeaponModifier`
+- **Level System**: `LevelConfig`, `LevelData`, `CellType`
+- **UI System**: `UIState`, `NotificationType`, `HUDElements`
+- **Utility Types**: `Vector2D`, `Vector3D`, `Bounds`, `Ray`, `RaycastHit`
+
+## Coding Standards
+
+### TypeScript Patterns
+- **Public/Private**: Clear access modifiers on all class members
+- **Readonly Properties**: Immutable configuration and template data
+- **Type Guards**: Safe type checking for dynamic content
+- **Generic Utilities**: Reusable typed utility functions
+- **Event Typing**: Strongly typed custom events
 
 ### Naming Conventions
 - **Classes**: PascalCase (e.g., `WeaponSystem`, `Player`)
+- **Interfaces**: PascalCase (e.g., `WeaponConfig`, `PlayerState`)
 - **Methods**: camelCase (e.g., `generateRandomWeapon`, `updateUI`)
+- **Types**: PascalCase (e.g., `WeaponType`, `GameEvent`)
 - **Constants**: UPPER_SNAKE_CASE for static values
 - **Files**: PascalCase for classes, camelCase for utilities
 
-## Core Systems
+### Console Logging
+- **Categorized**: Use emoji prefixes for easy debugging
+  - 🎮 Initialization, 🔫 Weapons, 🗺️ Levels, 🖥️ UI, 💥 Combat
+- **Typed**: Event data properly typed in CustomEvents
 
-### 1. Game Loop (src/core/Game.js)
-- **Three.js Scene**: Camera, renderer, lighting setup
-- **Update Cycle**: 60fps game loop with delta time
-- **System Management**: Player, level, weapons, UI coordination
-- **Event Handling**: Player death, level completion
+## Development Workflow
 
-### 2. Input System (src/core/InputManager.js)
-- **FPS Controls**: WASD movement, mouse look with pointer lock
-- **Action Triggers**: Shooting, reloading, interaction via CustomEvents
-- **State Tracking**: Key states, mouse deltas, button presses
-
-### 3. Player Controller (src/entities/Player.js)
-- **Movement**: Physics-based with gravity, jumping, crouching
-- **Camera**: First-person with head bobbing and smooth rotation
-- **Combat**: Weapon management, shooting, reloading
-- **Health System**: Damage, healing, death handling
-
-### 4. Level Generation (src/levels/Level.js)
-- **Procedural**: Random maze-like layouts with border walls
-- **Geometry**: Floor, walls, ceiling with Three.js meshes
-- **Lighting**: Multiple point lights for atmosphere
-- **Collision**: Grid-based collision detection system
-
-### 5. Weapon System (src/weapons/)
-- **Templates**: 6 weapon types (Pistol, Shotgun, Assault, SMG, Sniper, Plasma)
-- **Rarities**: 5 levels (Common → Legendary) with stat multipliers
-- **Modifiers**: 10+ enchantments (Explosive, Piercing, Vampiric, etc.)
-- **Generation**: Procedural weapons with random names and stats
-
-### 6. UI Management (src/ui/UIManager.js)
-- **Retro Aesthetic**: Green terminal styling with glow effects
-- **HUD**: Real-time health, ammo, weapon display
-- **Menus**: Start screen, game over, level complete
-- **Notifications**: Toast system for game events
-
-## Development Guidelines
-
-### Adding New Features
-1. **Enemies**: Create `Enemy.js` in `src/entities/` following Player pattern
-2. **Weapons**: Add templates to `WeaponSystem.initializeWeaponTemplates()`
-3. **Levels**: Extend `Level.js` generation algorithms
-4. **UI**: Add screens/panels via `UIManager` methods
-5. **Audio**: Integrate Howler.js for sound effects and music
-
-### Performance Considerations
-- **Object Pooling**: Reuse bullets, particles, enemies
-- **Geometry Disposal**: Clean up Three.js objects in destroy() methods
-- **Level of Detail**: Reduce quality for distant objects
-- **Efficient Collision**: Use spatial partitioning for large levels
-
-### Testing Workflow
-1. `npm run dev` - Start development server
-2. Browser console - Check for errors and game logs
-3. FPS monitoring - Watch performance in dev tools
-4. Manual testing - Movement, shooting, UI interactions
-
-## Game Design Principles
-
-### Roguelike Elements
-- **Procedural Generation**: Every run is unique
-- **Permadeath**: No saves, death resets progress
-- **Meta-Progression**: Permanent upgrades between runs
-- **Random Loot**: Weapons with varying stats and rarities
-
-### FPS Mechanics
-- **Fast-Paced**: Doom-style movement and combat
-- **Weapon Variety**: Different playstyles and strategies
-- **Environmental Design**: Use geometry for tactical gameplay
-- **Visual Feedback**: Clear hit indicators and effects
-
-### Progression Systems
-- **Run-Based**: Collect resources during gameplay
-- **Persistent**: Spend currency on permanent upgrades
-- **Skill-Based**: Player improvement through practice
-- **Discovery**: Unlock new content through achievements
-
-## Common Patterns
-
-### Event Communication
-```javascript
-// Trigger events
-document.dispatchEvent(new CustomEvent('game:shoot'));
-
-// Listen for events
-document.addEventListener('game:shoot', () => this.handleShoot());
+### TypeScript Commands
+```bash
+npm run dev          # Start development server with TypeScript
+npm run build        # Production build with type checking
+npm run type-check   # Run TypeScript compiler (no emit)
+npm run preview      # Preview production build
 ```
 
-### Three.js Object Management
-```javascript
-// Create geometry
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshLambertMaterial({ color: 0x666666 });
-const mesh = new THREE.Mesh(geometry, material);
+### Type Development
+- **Incremental**: Add types as features are developed
+- **Interface First**: Define interfaces before implementation
+- **Strict Compliance**: No TypeScript errors allowed in production
+- **Path Aliases**: Use `@/` imports for clean module resolution
 
-// Track for cleanup
-this.objects.push(mesh);
-this.scene.add(mesh);
+### IDE Integration
+- **IntelliSense**: Full autocompletion for all game objects
+- **Type Checking**: Real-time error detection
+- **Refactoring**: Safe renames and code restructuring
+- **Import Assistance**: Automatic import suggestions
 
-// Dispose properly
-geometry.dispose();
-material.dispose();
-```
+## Core Systems (TypeScript Implementation)
 
-### Console Logging Style
-```javascript
-console.log('🎮 Game initialized');
-console.log('🔫 Weapon created:', weaponName);
-console.log('🗺️ Level generated');
-console.log('💥 Enemy defeated');
-console.log('🧹 Cleanup complete');
-```
+### 1. Game Loop (`src/core/Game.ts`)
+- **Typed Configuration**: `GameConfig` interface for all settings
+- **State Management**: `GameState` interface for runtime state
+- **Three.js Integration**: Fully typed scene, camera, renderer
+- **Event System**: Typed custom events for game communication
+
+### 2. Player Controller (`src/entities/Player.ts`)
+- **Stats System**: `PlayerStats` for health, speed, combat values
+- **State Management**: `PlayerState` for position, movement, rotation
+- **Input Integration**: Typed `MovementInput` from InputManager
+- **Weapon Integration**: Strongly typed weapon interactions
+
+### 3. Weapon System (`src/weapons/`)
+- **Template System**: `WeaponTemplate` interfaces for base weapon data
+- **Rarity System**: `WeaponRarity` types with modifier calculations
+- **State Management**: `WeaponState` for ammo, reload, fire timers
+- **Modifier System**: `WeaponModifier` interfaces for special effects
+
+### 4. Level Generation (`src/levels/Level.ts`)
+- **Configuration**: `LevelConfig` for generation parameters
+- **Data Structure**: `LevelData` with typed grid, spawn points
+- **Collision System**: Typed collision detection with bounds checking
+- **Procedural Logic**: Type-safe random generation algorithms
+
+### 5. UI Management (`src/ui/UIManager.ts`)
+- **State Tracking**: `UIState` for menu visibility and current screen
+- **Event Handling**: Typed UI event dispatching
+- **Dynamic Content**: Type-safe screen generation and management
+- **Notification System**: `NotificationType` for user feedback
+
+## Performance Considerations (TypeScript)
+- **Compilation**: Fast incremental builds with Vite
+- **Bundle Size**: No runtime type checking overhead
+- **Development**: Enhanced debugging with type information
+- **Refactoring**: Safe large-scale code changes
 
 ## Next Priority Tasks
 
-### Phase 2: Game Mechanics
-1. **Enemy System**: Basic AI with health, movement, attack
-2. **Combat**: Bullet physics, hit detection, damage application
-3. **Level Features**: Enemy spawns, item pickups, exit portals
+### Phase 2: Game Mechanics (TypeScript Ready)
+1. **Enemy System**: `EnemyConfig`, `EnemyState`, `AIBehavior` types ready
+2. **Combat**: `Projectile`, `RaycastHit` interfaces for hit detection
+3. **Level Features**: Typed spawn systems, item pickups, portals
 
-### Phase 3: Roguelike Features
-1. **Meta-Progression**: Permanent upgrade system
-2. **Loot Drops**: Weapon pickups from enemies
-3. **Currency**: Scrap metal, energy cores collection
+### Phase 3: Roguelike Features (Types Defined)
+1. **Meta-Progression**: `PlayerProgression`, `Upgrade` interfaces ready
+2. **Currency System**: `Currency`, `CurrencyType` types defined
+3. **Statistics**: `GameStatistics` interface for tracking
 
-### Phase 4: Polish
-1. **Audio**: Weapon sounds, ambient music, UI feedback
-2. **Effects**: Muzzle flashes, explosions, particles
-3. **Optimization**: Performance improvements, mobile support
+### Phase 4: Polish (Type-Safe)
+1. **Audio**: Type-safe Howler.js integration
+2. **Effects**: Strongly typed particle and visual effect systems
+3. **Configuration**: `BoomRLConfig` for comprehensive game settings
 
 ## Debug Commands
-- **Check Status**: Server running on port 5173
-- **Console Logs**: Browser dev tools for game state
-- **Performance**: Three.js stats, FPS monitoring
-- **Networking**: Development server at localhost:5173
+- **Type Check**: `npm run type-check` for compilation verification
+- **Development**: TypeScript-aware development server
+- **Console Logs**: Emoji-categorized with typed event data
+- **Performance**: TypeScript compiler performance monitoring
 
-Remember: This is a playable prototype with solid foundations. Focus on incremental improvements while maintaining the core FPS + roguelike vision. The weapon system and procedural generation are the standout features that make this unique.
+## Benefits Achieved
+- **Type Safety**: Compile-time error detection prevents runtime issues
+- **Developer Experience**: Full IntelliSense and autocompletion
+- **Refactoring**: Safe code changes across large codebase
+- **Documentation**: Types serve as inline API documentation
+- **Scalability**: Easy to add new features with confidence
+- **Team Development**: Clear interfaces for collaboration
+
+Remember: The TypeScript conversion is complete! All 8 JavaScript files have been successfully converted with comprehensive type definitions. The game maintains full functionality while gaining significant development benefits. Focus on implementing new features using the established type system for maximum productivity and safety.

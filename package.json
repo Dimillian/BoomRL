@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint src --ext .js,.jsx --report-unused-disable-directives --max-warnings 0"
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx --report-unused-disable-directives --max-warnings 0"
   },
   "keywords": [
     "game",
@@ -15,13 +16,17 @@
     "doom",
     "browser",
     "threejs",
-    "fps"
+    "fps",
+    "typescript"
   ],
   "author": "dimillian",
   "license": "MIT",
   "devDependencies": {
     "vite": "^5.0.0",
-    "eslint": "^8.45.0"
+    "eslint": "^8.45.0",
+    "typescript": "^5.0.0",
+    "@types/three": "^0.158.0",
+    "@types/node": "^20.0.0"
   },
   "dependencies": {
     "three": "^0.158.0",

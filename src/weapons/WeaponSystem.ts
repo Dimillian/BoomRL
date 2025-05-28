@@ -1,6 +1,11 @@
-import { Weapon } from './Weapon.js';
+import type { WeaponTemplate, WeaponRarityData, WeaponModifier, WeaponType, WeaponRarity } from '@/types/game';
+import { Weapon } from './Weapon';
 
 export class WeaponSystem {
+    private readonly weaponTemplates: Record<string, WeaponTemplate>;
+    private readonly rarities: Record<WeaponRarity, WeaponRarityData>;
+    private readonly modifiers: Record<string, WeaponModifier>;
+
     constructor() {
         this.weaponTemplates = this.initializeWeaponTemplates();
         this.rarities = this.initializeRarities();
@@ -9,7 +14,7 @@ export class WeaponSystem {
         console.log('🔫 WeaponSystem initialized');
     }
 
-    initializeWeaponTemplates() {
+    private initializeWeaponTemplates(): Record<string, WeaponTemplate> {
         return {
             pistol: {
                 name: 'Pistol',
@@ -81,7 +86,7 @@ export class WeaponSystem {
         };
     }
 
-    initializeRarities() {
+    private initializeRarities(): Record<WeaponRarity, WeaponRarityData> {
         return {
             common: {
                 name: 'Common',
@@ -121,7 +126,7 @@ export class WeaponSystem {
         };
     }
 
-    initializeModifiers() {
+    private initializeModifiers(): Record<string, WeaponModifier> {
         return {
             // Damage modifiers
             explosive: {
@@ -197,7 +202,7 @@ export class WeaponSystem {
     }
 
     // Generate a random weapon
-    generateRandomWeapon() {
+    public generateRandomWeapon(): Weapon {
         // Select random weapon template
         const templateKeys = Object.keys(this.weaponTemplates);
         const randomTemplate = templateKeys[Math.floor(Math.random() * templateKeys.length)];
@@ -210,21 +215,21 @@ export class WeaponSystem {
         return this.createWeapon(template, rarity);
     }
 
-    rollRarity() {
+    private rollRarity(): WeaponRarity {
         const roll = Math.random();
         let cumulativeChance = 0;
 
         for (const [rarityKey, rarity] of Object.entries(this.rarities)) {
             cumulativeChance += rarity.chance;
             if (roll <= cumulativeChance) {
-                return rarityKey;
+                return rarityKey as WeaponRarity;
             }
         }
 
         return 'common'; // Fallback
     }
 
-    createWeapon(template, rarityKey = 'common') {
+    private createWeapon(template: WeaponTemplate, rarityKey: WeaponRarity = 'common'): Weapon {
         const rarity = this.rarities[rarityKey];
 
         // Clone template stats
@@ -242,8 +247,8 @@ export class WeaponSystem {
         // Apply modifiers to stats
         modifiers.forEach(modifier => {
             Object.entries(modifier.statChanges).forEach(([stat, multiplier]) => {
-                if (stats[stat] !== undefined) {
-                    stats[stat] = Math.floor(stats[stat] * multiplier);
+                if (multiplier !== undefined && (stats as any)[stat] !== undefined) {
+                    (stats as any)[stat] = Math.floor((stats as any)[stat] * multiplier);
                 }
             });
         });
@@ -261,8 +266,8 @@ export class WeaponSystem {
         });
     }
 
-    rollModifiers(count) {
-        const modifiers = [];
+    private rollModifiers(count: number): WeaponModifier[] {
+        const modifiers: WeaponModifier[] = [];
         const availableModifiers = Object.keys(this.modifiers);
 
         for (let i = 0; i < count; i++) {
@@ -278,7 +283,7 @@ export class WeaponSystem {
         return modifiers;
     }
 
-    generateWeaponName(template, rarity, modifiers) {
+    private generateWeaponName(template: WeaponTemplate, rarity: WeaponRarityData, modifiers: WeaponModifier[]): string {
         let name = '';
 
         // Add rarity prefix for higher rarities
@@ -303,14 +308,14 @@ export class WeaponSystem {
     }
 
     // Get starting weapon for new players
-    getStartingWeapon() {
+    public getStartingWeapon(): Weapon {
         const pistolTemplate = this.weaponTemplates.pistol;
         return this.createWeapon(pistolTemplate, 'common');
     }
 
     // Get weapon by specific type and rarity
-    getWeapon(type, rarity = 'common') {
-        const template = this.weaponTemplates[type];
+    public getWeapon(type: WeaponType, rarity: WeaponRarity = 'common'): Weapon {
+        const template = Object.values(this.weaponTemplates).find(t => t.type === type);
         if (!template) {
             console.error(`Weapon type ${type} not found`);
             return this.getStartingWeapon();
@@ -320,13 +325,31 @@ export class WeaponSystem {
     }
 
     // Weapon crafting/upgrading
-    upgradeWeapon(weapon, materialCount) {
+    public upgradeWeapon(weapon: Weapon, materialCount: number): void {
         // TODO: Implement weapon upgrading system
-        console.log(`🔧 Upgrading ${weapon.name} with ${materialCount} materials`);
+        console.log(`🔧 Upgrading ${weapon.getName()} with ${materialCount} materials`);
+    }
+
+    // Getters
+    public getWeaponTemplates(): Record<string, WeaponTemplate> {
+        return { ...this.weaponTemplates };
+    }
+
+    public getRarities(): Record<WeaponRarity, WeaponRarityData> {
+        return { ...this.rarities };
+    }
+
+    public getModifiers(): Record<string, WeaponModifier> {
+        return { ...this.modifiers };
     }
 
     // Update system (for cooldowns, etc.)
-    update(deltaTime) {
+    public update(_deltaTime: number): void {
         // Update any system-wide weapon mechanics
+    }
+
+    // Cleanup
+    public destroy(): void {
+        console.log('🧹 WeaponSystem cleaned up');
     }
 }

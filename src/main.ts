@@ -1,19 +1,18 @@
-import * as THREE from 'three';
-import { Game } from './core/Game.js';
-import { InputManager } from './core/InputManager.js';
-import { UIManager } from './ui/UIManager.js';
+import { Game } from '@core/Game';
+import { InputManager } from '@core/InputManager';
+import { UIManager } from '@ui/UIManager';
 
 class BoomRL {
-    constructor() {
-        this.game = null;
-        this.inputManager = null;
-        this.uiManager = null;
-        this.isRunning = false;
+    private game: Game | null = null;
+    private inputManager: InputManager | null = null;
+    private uiManager: UIManager | null = null;
+    private isRunning: boolean = false;
 
+    constructor() {
         this.init();
     }
 
-    async init() {
+    private async init(): Promise<void> {
         console.log('🎮 Initializing BoomRL...');
 
         // Initialize UI Manager
@@ -31,80 +30,69 @@ class BoomRL {
         console.log('✅ BoomRL initialized successfully!');
     }
 
-    setupMenus() {
+    private setupMenus(): void {
         const startButton = document.getElementById('startGame');
         const upgradesButton = document.getElementById('showUpgrades');
         const statsButton = document.getElementById('showStats');
 
-        startButton.addEventListener('click', () => {
+        startButton?.addEventListener('click', () => {
             this.startGame();
         });
 
-        upgradesButton.addEventListener('click', () => {
-            this.uiManager.showUpgrades();
+        upgradesButton?.addEventListener('click', () => {
+            this.uiManager?.showUpgrades();
         });
 
-        statsButton.addEventListener('click', () => {
-            this.uiManager.showStats();
+        statsButton?.addEventListener('click', () => {
+            this.uiManager?.showStats();
         });
 
         // ESC key to show menu
-        document.addEventListener('keydown', (event) => {
+        document.addEventListener('keydown', (event: KeyboardEvent) => {
             if (event.code === 'Escape') {
                 this.toggleMenu();
             }
         });
     }
 
-    async startGame() {
+    private async startGame(): Promise<void> {
         if (this.isRunning) return;
 
         console.log('🚀 Starting new game...');
 
-        this.uiManager.hideMenu();
-        this.uiManager.showLoading();
+        this.uiManager?.hideMenu();
+        this.uiManager?.showLoading();
 
         try {
-            await this.game.start();
+            await this.game?.start();
             this.isRunning = true;
-            this.uiManager.hideLoading();
-            this.uiManager.showHUD();
+            this.uiManager?.hideLoading();
+            this.uiManager?.showHUD();
 
             // Request pointer lock for FPS controls
             const canvas = document.getElementById('gameCanvas');
-            canvas.requestPointerLock();
+            canvas?.requestPointerLock();
 
         } catch (error) {
             console.error('❌ Failed to start game:', error);
-            this.uiManager.hideLoading();
-            this.uiManager.showMenu();
+            this.uiManager?.hideLoading();
+            this.uiManager?.showMenu();
         }
     }
 
-    toggleMenu() {
-        if (this.uiManager.isMenuVisible()) {
+    private toggleMenu(): void {
+        if (this.uiManager?.isMenuVisible()) {
             if (this.isRunning) {
                 this.uiManager.hideMenu();
                 this.uiManager.showHUD();
                 const canvas = document.getElementById('gameCanvas');
-                canvas.requestPointerLock();
+                canvas?.requestPointerLock();
             }
         } else {
-            this.uiManager.showMenu();
-            this.uiManager.hideHUD();
+            this.uiManager?.showMenu();
+            this.uiManager?.hideHUD();
             document.exitPointerLock();
         }
-    }
-
-    stopGame() {
-        if (!this.isRunning) return;
-
-        console.log('⏹️ Stopping game...');
-        this.game.stop();
-        this.isRunning = false;
-        this.uiManager.hideHUD();
-        this.uiManager.showMenu();
-        document.exitPointerLock();
     }
 }
 
@@ -115,13 +103,15 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // Handle window resize
 window.addEventListener('resize', () => {
-    if (window.boomRL && window.boomRL.game) {
-        window.boomRL.game.handleResize();
+    // Type assertion for global game instance
+    const boomRL = (window as any).boomRL;
+    if (boomRL?.game) {
+        boomRL.game.handleResize();
     }
 });
 
 // Prevent context menu on right click
-document.addEventListener('contextmenu', (event) => {
+document.addEventListener('contextmenu', (event: Event) => {
     event.preventDefault();
 });
 

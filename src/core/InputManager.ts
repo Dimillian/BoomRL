@@ -1,44 +1,43 @@
+import type { InputState, MovementInput, GameEvent } from '@/types/game';
+
 export class InputManager {
+    private keys: Record<string, boolean> = {};
+    private mouseButtons: Record<number, boolean> = {};
+    private mouseDelta: { x: number; y: number } = { x: 0, y: 0 };
+    private mousePosition: { x: number; y: number } = { x: 0, y: 0 };
+
+    // Configuration
+    private mouseSensitivity: number = 0.002;
+
     constructor() {
-        // Key states
-        this.keys = {};
-        this.mouseButtons = {};
-        this.mouseDelta = { x: 0, y: 0 };
-        this.mousePosition = { x: 0, y: 0 };
-
-        // Mouse sensitivity
-        this.mouseSensitivity = 0.002;
-
-        // Bind event listeners
         this.bindEvents();
-
         console.log('🎮 InputManager initialized');
     }
 
-    bindEvents() {
+    private bindEvents(): void {
         // Keyboard events
-        document.addEventListener('keydown', (event) => {
+        document.addEventListener('keydown', (event: KeyboardEvent) => {
             this.keys[event.code] = true;
             this.handleKeyDown(event);
         });
 
-        document.addEventListener('keyup', (event) => {
+        document.addEventListener('keyup', (event: KeyboardEvent) => {
             this.keys[event.code] = false;
-            this.handleKeyUp(event);
+            this.handleKeyUp();
         });
 
         // Mouse events
-        document.addEventListener('mousedown', (event) => {
+        document.addEventListener('mousedown', (event: MouseEvent) => {
             this.mouseButtons[event.button] = true;
             this.handleMouseDown(event);
         });
 
-        document.addEventListener('mouseup', (event) => {
+        document.addEventListener('mouseup', (event: MouseEvent) => {
             this.mouseButtons[event.button] = false;
             this.handleMouseUp(event);
         });
 
-        document.addEventListener('mousemove', (event) => {
+        document.addEventListener('mousemove', (event: MouseEvent) => {
             this.handleMouseMove(event);
         });
 
@@ -48,16 +47,16 @@ export class InputManager {
         });
 
         // Prevent default actions for game keys
-        document.addEventListener('keydown', (event) => {
+        document.addEventListener('keydown', (event: KeyboardEvent) => {
             // Prevent default for game controls
-            const gameKeys = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyR', 'KeyE', 'Space', 'ShiftLeft'];
+            const gameKeys: string[] = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyR', 'KeyE', 'Space', 'ShiftLeft'];
             if (gameKeys.includes(event.code)) {
                 event.preventDefault();
             }
         });
     }
 
-    handleKeyDown(event) {
+    private handleKeyDown(event: KeyboardEvent): void {
         // Handle immediate key press actions
         switch (event.code) {
             case 'KeyR':
@@ -69,11 +68,11 @@ export class InputManager {
         }
     }
 
-    handleKeyUp(event) {
+    private handleKeyUp(): void {
         // Handle key release actions if needed
     }
 
-    handleMouseDown(event) {
+    private handleMouseDown(event: MouseEvent): void {
         // Handle immediate mouse press actions
         switch (event.button) {
             case 0: // Left click
@@ -85,7 +84,7 @@ export class InputManager {
         }
     }
 
-    handleMouseUp(event) {
+    private handleMouseUp(event: MouseEvent): void {
         // Handle mouse release actions
         switch (event.button) {
             case 2: // Right click
@@ -94,7 +93,7 @@ export class InputManager {
         }
     }
 
-    handleMouseMove(event) {
+    private handleMouseMove(event: MouseEvent): void {
         if (document.pointerLockElement) {
             // Use movement deltas when pointer is locked
             this.mouseDelta.x = event.movementX * this.mouseSensitivity;
@@ -106,33 +105,42 @@ export class InputManager {
         }
     }
 
-    handlePointerLockChange() {
+    private handlePointerLockChange(): void {
         const isLocked = document.pointerLockElement !== null;
         console.log(isLocked ? '🔒 Pointer locked' : '🔓 Pointer unlocked');
     }
 
     // Input state getters
-    isKeyPressed(keyCode) {
+    public isKeyPressed(keyCode: string): boolean {
         return !!this.keys[keyCode];
     }
 
-    isMouseButtonPressed(button) {
+    public isMouseButtonPressed(button: number): boolean {
         return !!this.mouseButtons[button];
     }
 
-    getMouseDelta() {
+    public getMouseDelta(): { x: number; y: number } {
         const delta = { ...this.mouseDelta };
         this.mouseDelta.x = 0;
         this.mouseDelta.y = 0;
         return delta;
     }
 
-    getMousePosition() {
+    public getMousePosition(): { x: number; y: number } {
         return { ...this.mousePosition };
     }
 
+    public getInputState(): InputState {
+        return {
+            keys: { ...this.keys },
+            mouseButtons: { ...this.mouseButtons },
+            mouseDelta: { ...this.mouseDelta },
+            mousePosition: { ...this.mousePosition }
+        };
+    }
+
     // Movement input helpers
-    getMovementInput() {
+    public getMovementInput(): MovementInput {
         return {
             forward: this.isKeyPressed('KeyW'),
             backward: this.isKeyPressed('KeyS'),
@@ -145,38 +153,46 @@ export class InputManager {
     }
 
     // Action triggers (for immediate actions)
-    triggerShoot() {
-        document.dispatchEvent(new CustomEvent('game:shoot'));
+    private triggerShoot(): void {
+        this.dispatchGameEvent('game:shoot');
     }
 
-    triggerReload() {
-        document.dispatchEvent(new CustomEvent('game:reload'));
+    private triggerReload(): void {
+        this.dispatchGameEvent('game:reload');
     }
 
-    triggerInteract() {
-        document.dispatchEvent(new CustomEvent('game:interact'));
+    private triggerInteract(): void {
+        this.dispatchGameEvent('game:interact');
     }
 
-    triggerAim() {
-        document.dispatchEvent(new CustomEvent('game:aimStart'));
+    private triggerAim(): void {
+        this.dispatchGameEvent('game:aimStart');
     }
 
-    triggerAimRelease() {
-        document.dispatchEvent(new CustomEvent('game:aimEnd'));
+    private triggerAimRelease(): void {
+        this.dispatchGameEvent('game:aimEnd');
+    }
+
+    private dispatchGameEvent(eventType: GameEvent, data?: unknown): void {
+        document.dispatchEvent(new CustomEvent(eventType, { detail: data }));
     }
 
     // Utility methods
-    setMouseSensitivity(sensitivity) {
+    public setMouseSensitivity(sensitivity: number): void {
         this.mouseSensitivity = sensitivity;
     }
 
-    resetMouseDelta() {
+    public getMouseSensitivity(): number {
+        return this.mouseSensitivity;
+    }
+
+    public resetMouseDelta(): void {
         this.mouseDelta.x = 0;
         this.mouseDelta.y = 0;
     }
 
     // Cleanup
-    destroy() {
+    public destroy(): void {
         // Remove all event listeners if needed
         console.log('🧹 InputManager cleaned up');
     }

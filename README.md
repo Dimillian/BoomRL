@@ -1,156 +1,204 @@
-# BoomRL 🎮💥
+# BoomRL - Roguelike Doom
 
-A browser-based roguelike Doom-style shooter with retro graphics, procedural generation, and meta-progression.
+A browser-based roguelike Doom-style first-person shooter built with **TypeScript** and Three.js. Experience fast-paced FPS action combined with roguelike progression, featuring procedural level generation, randomized weapons with rarities, and meta-progression systems.
 
-## 🎯 Game Concept
-
-BoomRL combines the fast-paced action of classic Doom with roguelike mechanics, creating an infinitely replayable experience in your browser. Fight through procedurally generated levels, collect epic weapons, and use meta-progression to become stronger with each run.
-
-## 🚀 Features
+## 🎮 Features
 
 ### Core Gameplay
-- **Doom-style Combat**: Fast-paced first-person shooter mechanics
-- **Retro Graphics**: Classic 90s aesthetic with modern browser technology
-- **Procedural Generation**: Every level is unique with randomized layouts
-- **Progressive Difficulty**: Each level increases challenge and rewards
+- **First-Person Shooter**: Doom-style movement and shooting mechanics
+- **Procedural Levels**: Every run features unique maze-like environments
+- **Weapon System**: 6 weapon types with 5 rarity levels and 10+ modifiers
+- **Roguelike Elements**: Permadeath, random generation, meta-progression
 
-### Roguelike Elements
-- **Meta-progression**: Collect resources to unlock permanent upgrades
-- **Random Loot**: Discover weapons and powerups with varying rarities
-- **Permadeath**: Each run is a fresh start with accumulated upgrades
-- **Risk/Reward**: Push deeper for better loot but higher danger
+### Weapon System (The Fun Part!)
+- **Weapon Types**: Pistol, Shotgun, Assault Rifle, SMG, Sniper Rifle, Plasma Rifle
+- **Rarity System**: Common → Uncommon → Rare → Epic → Legendary
+- **Modifiers**: Explosive, Piercing, Incendiary, Vampiric, Electric, and more
+- **Dynamic Stats**: Damage, fire rate, reload speed, accuracy, range, magazine size
+- **Procedural Names**: "Epic Explosive Assault Rifle of Piercing"
 
-### Weapon System
-- **Weapon Tiers**: Common, Rare, Epic, Legendary weapons
-- **Random Stats**: Damage, fire rate, reload speed, and special effects
-- **Doom-inspired Arsenal**: Shotguns, assault rifles, plasma weapons, and more
-- **Weapon Modifications**: Random enchantments and special properties
-
-### Progression Systems
-- **Run Resources**: Collect scrap, energy cores, and weapon parts
-- **Permanent Upgrades**: Health, speed, damage, reload speed
-- **Unlock System**: New weapons, abilities, and starting loadouts
-- **Achievement System**: Challenges that reward progression currency
+### Progression & Meta-Game
+- **Resource Collection**: Scrap metal, energy cores, weapon parts
+- **Persistent Upgrades**: Health, speed, damage, reload speed improvements
+- **Weapon Unlocks**: Discover new weapon types through gameplay
+- **Statistics Tracking**: Performance metrics and achievement system
 
 ## 🛠️ Technology Stack
 
-- **Engine**: Three.js for 3D graphics
-- **Audio**: Web Audio API / Howler.js
-- **Build Tool**: Vite for fast development
-- **Language**: JavaScript (ES6+)
-- **Styling**: CSS3 with modern features
-- **Deployment**: GitHub Pages ready
+- **Language**: TypeScript (strict mode enabled)
+- **3D Engine**: Three.js with full type definitions
+- **Build Tool**: Vite with TypeScript support
+- **Audio**: Howler.js (planned)
+- **Styling**: CSS3 with retro terminal aesthetic
+- **Development**: ES6 modules, path aliases, comprehensive type safety
 
-## 🏃‍♂️ Quick Start
+## 🚀 Quick Start
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/your-username/BoomRL.git
-   cd BoomRL
-   ```
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+### Installation
+```bash
+# Clone the repository
+git clone https://github.com/dimillian/BoomRL.git
+cd BoomRL
 
-3. **Start development server**
-   ```bash
-   npm run dev
-   ```
+# Install dependencies
+npm install
 
-4. **Open in browser**
-   Navigate to `http://localhost:5173`
+# Start development server
+npm run dev
+```
 
-## 🎮 Controls
+The game will be available at `http://localhost:5173`
 
-- **WASD**: Move
-- **Mouse**: Look around
-- **Left Click**: Shoot
-- **R**: Reload
-- **E**: Interact/Pickup
-- **Tab**: Inventory/Stats
-- **Escape**: Pause menu
+### Development Commands
+```bash
+npm run dev          # Start development server with hot reload
+npm run build        # Build for production (includes TypeScript checking)
+npm run preview      # Preview production build
+npm run type-check   # Run TypeScript type checking
+npm run lint         # Run ESLint code quality checks
+```
 
-## 🏗️ Project Structure
+## 🎯 Controls
+
+- **WASD** - Movement
+- **Mouse** - Look around (pointer lock)
+- **Left Click** - Shoot
+- **R** - Reload weapon
+- **E** - Interact with objects
+- **ESC** - Toggle menu
+- **Shift** - Run (hold)
+- **Ctrl** - Crouch (hold)
+- **Space** - Jump
+
+## 📁 Project Structure
 
 ```
 BoomRL/
 ├── src/
-│   ├── core/           # Core game systems
-│   ├── entities/       # Player, enemies, items
-│   ├── levels/         # Level generation
-│   ├── weapons/        # Weapon system
-│   ├── audio/          # Sound management
-│   ├── ui/             # User interface
-│   └── utils/          # Utility functions
-├── assets/
-│   ├── models/         # 3D models
-│   ├── textures/       # Image assets
-│   ├── audio/          # Sound effects & music
-│   └── sprites/        # 2D UI elements
-├── public/             # Static assets
-└── docs/               # Documentation
+│   ├── main.ts              # Entry point (TypeScript)
+│   ├── types/
+│   │   ├── game.ts          # Comprehensive type definitions
+│   │   └── modules.d.ts     # Module declarations
+│   ├── core/                # Core game systems
+│   │   ├── Game.js          # Main game loop and scene
+│   │   └── InputManager.js  # Input handling system
+│   ├── entities/            # Game entities
+│   │   └── Player.js        # Player controller
+│   ├── levels/              # Level generation
+│   │   └── Level.js         # Procedural level generator
+│   ├── weapons/             # Weapon system
+│   │   ├── WeaponSystem.js  # Weapon generation and management
+│   │   └── Weapon.js        # Individual weapon class
+│   ├── ui/                  # User interface
+│   │   └── UIManager.js     # UI state and HUD management
+│   └── utils/               # Utility functions
+│       └── MathUtils.js     # Mathematical helpers
+├── docs/                    # Documentation
+│   ├── DEVELOPMENT.md       # Technical architecture
+│   └── GAME_RULES.md        # Game design document
+├── tsconfig.json            # TypeScript configuration
+├── vite.config.ts           # Vite build configuration
+└── package.json             # Dependencies and scripts
 ```
 
-## 🎨 Art Style
+## 🔧 TypeScript Migration Status
 
-- **Low-poly 3D models** with pixel-perfect textures
-- **Retro color palette** with high contrast
-- **Sprite-based UI** elements
-- **Particle effects** for impacts and explosions
-- **Dynamic lighting** for atmosphere
+### ✅ Completed
+- [x] TypeScript configuration and build setup
+- [x] Comprehensive type definitions (`src/types/game.ts`)
+- [x] Main entry point converted to TypeScript
+- [x] Path aliases and module resolution
+- [x] Development workflow with type checking
 
-## 🔮 Roadmap
+### 🔄 In Progress
+- [ ] Core systems conversion (Game, InputManager, UIManager)
+- [ ] Entity systems conversion (Player)
+- [ ] Level generation system conversion
+- [ ] Weapon system conversion
 
-### Phase 1: Core Foundation ✅
-- [x] Project setup and basic Three.js scene
-- [x] Player movement and camera controls
-- [x] Basic shooting mechanics
-- [x] Simple level geometry
+### 🎯 Benefits of TypeScript
+- **Type Safety**: Catch errors at compile time
+- **Better IntelliSense**: Full autocompletion for Three.js and game objects
+- **Refactoring**: Safe code changes and renames
+- **Documentation**: Types serve as inline documentation
+- **Scalability**: Easier to maintain and extend
 
-### Phase 2: Game Mechanics
-- [ ] Enemy AI and combat
-- [ ] Weapon system with random generation
-- [ ] Health and damage system
-- [ ] Basic UI and HUD
+## 🎪 Current Development Phase
 
-### Phase 3: Roguelike Features
-- [ ] Procedural level generation
-- [ ] Loot system and item rarities
-- [ ] Meta-progression and upgrades
-- [ ] Save system for progression
+**Phase 1**: ✅ Complete - Core FPS mechanics with playable prototype
+**Phase 2**: 🚧 In Progress - TypeScript conversion and enemy AI system
+**Phase 3**: 📋 Planned - Meta-progression and loot systems
+**Phase 4**: 📋 Planned - Audio, effects, and optimization
 
-### Phase 4: Polish & Enhancement
-- [ ] Audio system and sound effects
-- [ ] Particle effects and visual polish
-- [ ] Performance optimization
-- [ ] Mobile controls support
+## 🎲 Game Design Philosophy
 
-### Phase 5: Advanced Features
-- [ ] Character classes
-- [ ] Boss encounters
-- [ ] Leaderboards
-- [ ] Social features
+### Roguelike Elements
+- **Procedural Generation**: Every run is unique
+- **Permadeath**: Death resets progress, encouraging risk/reward decisions
+- **Meta-Progression**: Permanent upgrades provide long-term goals
+- **Emergent Gameplay**: Random weapons create varied strategies
+
+### FPS Mechanics
+- **Fast-Paced**: Doom-style movement with momentum
+- **Weapon Variety**: Each weapon type offers different playstyles
+- **Skill-Based**: Player improvement through practice and knowledge
+- **Visual Feedback**: Clear hit indicators and responsive controls
+
+## 🐛 Development & Debugging
+
+### Console Logging System
+The game uses emoji-prefixed console logs for easy debugging:
+- 🎮 Game initialization and lifecycle
+- 🔫 Weapon system and combat
+- 🗺️ Level generation and management
+- 🖥️ UI state changes
+- 💥 Combat and damage events
+
+### TypeScript Development
+```bash
+# Watch for TypeScript errors
+npm run type-check
+
+# Development with hot reload
+npm run dev
+
+# Check code quality
+npm run lint
+```
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create your feature branch: `git checkout -b feature/amazing-feature`
+3. Follow TypeScript coding standards (see `.cursorrules`)
+4. Commit your changes: `git commit -m 'Add amazing feature'`
+5. Push to the branch: `git push origin feature/amazing-feature`
+6. Open a Pull Request
 
-## 📝 License
+### Code Standards
+- Use TypeScript strict mode
+- Provide explicit types for all public APIs
+- Follow the existing emoji logging system
+- Write clear, descriptive commit messages
+- Test changes in the browser before submitting
+
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## 🎯 Roadmap
 
-- Inspired by classic Doom and modern roguelike games
-- Three.js community for excellent documentation
-- Retro gaming community for inspiration
+- [ ] Complete TypeScript conversion
+- [ ] Enemy AI and combat system
+- [ ] Audio system with spatial sound
+- [ ] Visual effects and particles
+- [ ] Mobile touch controls
+- [ ] Multiplayer support (future consideration)
 
 ---
 
-**Start your browser, lock and load! 🔫**
+**Ready to experience the ultimate browser-based roguelike FPS? Clone, build, and start your BoomRL adventure! 🎮🔫**

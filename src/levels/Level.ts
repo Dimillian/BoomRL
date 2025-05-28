@@ -1,19 +1,34 @@
 import * as THREE from 'three';
+import type { LevelConfig, LevelData, CellType } from '@/types/game';
 
 export class Level {
-    constructor(scene) {
+    private readonly scene: THREE.Scene;
+    private levelData: CellType[][] | null = null;
+    private geometry: THREE.Object3D[] = [];
+
+    // Level configuration
+    private readonly config: LevelConfig;
+    private spawnPoint: THREE.Vector3;
+
+    constructor(scene: THREE.Scene, config?: Partial<LevelConfig>) {
         this.scene = scene;
-        this.levelData = null;
-        this.geometry = [];
-        this.width = 20;
-        this.height = 20;
-        this.wallHeight = 4;
+
+        // Default configuration
+        this.config = {
+            width: 20,
+            height: 20,
+            wallHeight: 4,
+            wallDensity: 0.15,
+            spawnClearRadius: 2,
+            ...config
+        };
+
         this.spawnPoint = new THREE.Vector3(0, 2, 0);
 
         console.log('🗺️ Level constructor initialized');
     }
 
-    async generate() {
+    public async generate(): Promise<void> {
         console.log('🎲 Generating level...');
 
         try {
@@ -42,14 +57,14 @@ export class Level {
         }
     }
 
-    generateLevelData() {
+    private generateLevelData(): void {
         // Initialize grid (0 = floor, 1 = wall)
         this.levelData = [];
-        for (let x = 0; x < this.width; x++) {
+        for (let x = 0; x < this.config.width; x++) {
             this.levelData[x] = [];
-            for (let z = 0; z < this.height; z++) {
+            for (let z = 0; z < this.config.height; z++) {
                 // Create walls around the border
-                if (x === 0 || x === this.width - 1 || z === 0 || z === this.height - 1) {
+                if (x === 0 || x === this.config.width - 1 || z === 0 || z === this.config.height - 1) {
                     this.levelData[x][z] = 1;
                 } else {
                     this.levelData[x][z] = 0;
@@ -64,38 +79,42 @@ export class Level {
         this.clearSpawnArea();
     }
 
-    addRandomWalls() {
-        const numWalls = Math.floor((this.width * this.height) * 0.15); // 15% walls
+    private addRandomWalls(): void {
+        if (!this.levelData) return;
+
+        const numWalls = Math.floor((this.config.width * this.config.height) * this.config.wallDensity);
 
         for (let i = 0; i < numWalls; i++) {
-            const x = Math.floor(Math.random() * (this.width - 2)) + 1;
-            const z = Math.floor(Math.random() * (this.height - 2)) + 1;
+            const x = Math.floor(Math.random() * (this.config.width - 2)) + 1;
+            const z = Math.floor(Math.random() * (this.config.height - 2)) + 1;
 
             // Don't place walls too close to spawn
-            const distanceFromSpawn = Math.sqrt((x - this.width/2) ** 2 + (z - this.height/2) ** 2);
+            const distanceFromSpawn = Math.sqrt((x - this.config.width/2) ** 2 + (z - this.config.height/2) ** 2);
             if (distanceFromSpawn > 3) {
                 this.levelData[x][z] = 1;
             }
         }
     }
 
-    clearSpawnArea() {
-        const centerX = Math.floor(this.width / 2);
-        const centerZ = Math.floor(this.height / 2);
-        const clearRadius = 2;
+    private clearSpawnArea(): void {
+        if (!this.levelData) return;
+
+        const centerX = Math.floor(this.config.width / 2);
+        const centerZ = Math.floor(this.config.height / 2);
+        const clearRadius = this.config.spawnClearRadius;
 
         for (let x = centerX - clearRadius; x <= centerX + clearRadius; x++) {
             for (let z = centerZ - clearRadius; z <= centerZ + clearRadius; z++) {
-                if (x >= 0 && x < this.width && z >= 0 && z < this.height) {
+                if (x >= 0 && x < this.config.width && z >= 0 && z < this.config.height) {
                     this.levelData[x][z] = 0;
                 }
             }
         }
     }
 
-    createFloor() {
+    private createFloor(): void {
         // Create a large floor plane
-        const floorGeometry = new THREE.PlaneGeometry(this.width * 2, this.height * 2);
+        const floorGeometry = new THREE.PlaneGeometry(this.config.width * 2, this.config.height * 2);
         const floorMaterial = new THREE.MeshLambertMaterial({
             color: 0x333333,
             side: THREE.DoubleSide
@@ -112,20 +131,22 @@ export class Level {
         console.log('🟫 Floor created');
     }
 
-    createWalls() {
-        const wallGeometry = new THREE.BoxGeometry(2, this.wallHeight, 2);
+    private createWalls(): void {
+        if (!this.levelData) return;
+
+        const wallGeometry = new THREE.BoxGeometry(2, this.config.wallHeight, 2);
         const wallMaterial = new THREE.MeshLambertMaterial({
             color: 0x666666
         });
 
-        for (let x = 0; x < this.width; x++) {
-            for (let z = 0; z < this.height; z++) {
+        for (let x = 0; x < this.config.width; x++) {
+            for (let z = 0; z < this.config.height; z++) {
                 if (this.levelData[x][z] === 1) {
                     const wall = new THREE.Mesh(wallGeometry, wallMaterial);
                     wall.position.set(
-                        (x - this.width / 2) * 2,
-                        this.wallHeight / 2,
-                        (z - this.height / 2) * 2
+                        (x - this.config.width / 2) * 2,
+                        this.config.wallHeight / 2,
+                        (z - this.config.height / 2) * 2
                     );
                     wall.castShadow = true;
                     wall.receiveShadow = true;
@@ -139,9 +160,9 @@ export class Level {
         console.log('🧱 Walls created');
     }
 
-    createCeiling() {
+    private createCeiling(): void {
         // Create a ceiling for atmosphere
-        const ceilingGeometry = new THREE.PlaneGeometry(this.width * 2, this.height * 2);
+        const ceilingGeometry = new THREE.PlaneGeometry(this.config.width * 2, this.config.height * 2);
         const ceilingMaterial = new THREE.MeshLambertMaterial({
             color: 0x222222,
             side: THREE.DoubleSide
@@ -149,7 +170,7 @@ export class Level {
 
         const ceiling = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
         ceiling.rotation.x = Math.PI / 2;
-        ceiling.position.y = this.wallHeight + 1;
+        ceiling.position.y = this.config.wallHeight + 1;
 
         this.scene.add(ceiling);
         this.geometry.push(ceiling);
@@ -157,7 +178,7 @@ export class Level {
         console.log('🏠 Ceiling created');
     }
 
-    addLevelLighting() {
+    private addLevelLighting(): void {
         // Add some point lights around the level
         const numLights = 5;
         const lightColor = 0xff6600;
@@ -168,9 +189,9 @@ export class Level {
             const light = new THREE.PointLight(lightColor, lightIntensity, lightDistance);
 
             // Random position within the level
-            const x = (Math.random() - 0.5) * (this.width * 1.5);
-            const z = (Math.random() - 0.5) * (this.height * 1.5);
-            const y = this.wallHeight - 1;
+            const x = (Math.random() - 0.5) * (this.config.width * 1.5);
+            const z = (Math.random() - 0.5) * (this.config.height * 1.5);
+            const y = this.config.wallHeight - 1;
 
             light.position.set(x, y, z);
             light.castShadow = true;
@@ -186,7 +207,7 @@ export class Level {
         console.log('💡 Level lighting added');
     }
 
-    setSpawnPoint() {
+    private setSpawnPoint(): void {
         // Set spawn point to center of level
         this.spawnPoint.set(0, 2, 0);
 
@@ -208,17 +229,19 @@ export class Level {
         console.log('🎯 Spawn point set');
     }
 
-    getSpawnPoint() {
+    public getSpawnPoint(): THREE.Vector3 {
         return this.spawnPoint.clone();
     }
 
     // Collision detection
-    checkCollision(position, radius = 0.5) {
-        const gridX = Math.floor((position.x + this.width) / 2);
-        const gridZ = Math.floor((position.z + this.height) / 2);
+    public checkCollision(position: THREE.Vector3, _radius: number = 0.5): boolean {
+        if (!this.levelData) return true;
+
+        const gridX = Math.floor((position.x + this.config.width) / 2);
+        const gridZ = Math.floor((position.z + this.config.height) / 2);
 
         // Check if position is outside level bounds
-        if (gridX < 0 || gridX >= this.width || gridZ < 0 || gridZ >= this.height) {
+        if (gridX < 0 || gridX >= this.config.width || gridZ < 0 || gridZ >= this.config.height) {
             return true;
         }
 
@@ -227,26 +250,28 @@ export class Level {
     }
 
     // Pathfinding helpers
-    isWalkable(x, z) {
-        if (x < 0 || x >= this.width || z < 0 || z >= this.height) {
+    public isWalkable(x: number, z: number): boolean {
+        if (!this.levelData) return false;
+
+        if (x < 0 || x >= this.config.width || z < 0 || z >= this.config.height) {
             return false;
         }
         return this.levelData[x][z] === 0;
     }
 
-    getRandomWalkablePosition() {
+    public getRandomWalkablePosition(): THREE.Vector3 {
         let attempts = 0;
         const maxAttempts = 100;
 
         while (attempts < maxAttempts) {
-            const x = Math.floor(Math.random() * this.width);
-            const z = Math.floor(Math.random() * this.height);
+            const x = Math.floor(Math.random() * this.config.width);
+            const z = Math.floor(Math.random() * this.config.height);
 
             if (this.isWalkable(x, z)) {
                 return new THREE.Vector3(
-                    (x - this.width / 2) * 2,
+                    (x - this.config.width / 2) * 2,
                     2,
-                    (z - this.height / 2) * 2
+                    (z - this.config.height / 2) * 2
                 );
             }
             attempts++;
@@ -257,37 +282,60 @@ export class Level {
     }
 
     // Level progression
-    addEnemySpawns() {
+    public addEnemySpawns(): void {
         // TODO: Add enemy spawn points
         console.log('👾 Enemy spawns added (placeholder)');
     }
 
-    addItemSpawns() {
+    public addItemSpawns(): void {
         // TODO: Add item/weapon spawn points
         console.log('📦 Item spawns added (placeholder)');
     }
 
-    addExitPortal() {
+    public addExitPortal(): void {
         // TODO: Add exit portal to next level
         console.log('🚪 Exit portal added (placeholder)');
     }
 
     // Update method for dynamic elements
-    update(deltaTime) {
+    public update(_deltaTime: number): void {
         // TODO: Update dynamic level elements (moving platforms, etc.)
     }
 
+    // Getters
+    public getLevelData(): LevelData | null {
+        if (!this.levelData) return null;
+
+        const levelData: LevelData = {
+            grid: this.levelData.map(row => [...row]),
+            spawnPoint: this.spawnPoint.clone(),
+            enemySpawns: [], // TODO: Implement
+            itemSpawns: [] // TODO: Implement
+        };
+
+        // TODO: Add exitPortal when implemented
+        // levelData.exitPortal = exitPortalPosition;
+
+        return levelData;
+    }
+
+    public getConfig(): LevelConfig {
+        return { ...this.config };
+    }
+
     // Cleanup
-    clearLevel() {
+    private clearLevel(): void {
         // Remove all existing geometry
         this.geometry.forEach(obj => {
             this.scene.remove(obj);
-            if (obj.geometry) obj.geometry.dispose();
-            if (obj.material) {
+
+            // Dispose of geometries and materials
+            if (obj instanceof THREE.Mesh) {
+                obj.geometry?.dispose();
                 if (Array.isArray(obj.material)) {
                     obj.material.forEach(mat => mat.dispose());
                 } else {
-                    obj.material.dispose();
+                    obj.material?.dispose();
                 }
             }
         });
@@ -296,7 +344,7 @@ export class Level {
         console.log('🧹 Level cleared');
     }
 
-    destroy() {
+    public destroy(): void {
         this.clearLevel();
         console.log('🗑️ Level destroyed');
     }
