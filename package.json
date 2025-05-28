@@ -1,0 +1,30 @@
+{
+  "name": "boomrl",
+  "version": "0.1.0",
+  "description": "A browser-based roguelike Doom-style shooter",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext .js,.jsx --report-unused-disable-directives --max-warnings 0"
+  },
+  "keywords": [
+    "game",
+    "roguelike",
+    "doom",
+    "browser",
+    "threejs",
+    "fps"
+  ],
+  "author": "dimillian",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "eslint": "^8.45.0"
+  },
+  "dependencies": {
+    "three": "^0.158.0",
+    "howler": "^2.2.4"
+  }
+}

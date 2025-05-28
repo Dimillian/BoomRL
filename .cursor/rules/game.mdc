@@ -1,0 +1,193 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# BoomRL Cursor Rules
+
+## Project Overview
+BoomRL is a browser-based roguelike Doom-style FPS built with Three.js and Vite. It combines fast-paced first-person shooter mechanics with roguelike progression systems, featuring procedural level generation, randomized weapons with rarities, and meta-progression between runs.
+
+**Key Documentation:**
+- @README.md - Complete project overview, features, and quick start guide
+- @docs/DEVELOPMENT.md - Technical architecture, current status, and development roadmap
+- @docs/GAME_RULES.md - Game mechanics, progression systems, and design philosophy
+
+## Current Status
+✅ **Phase 1 Complete**: Core foundation with playable FPS mechanics
+🚧 **Phase 2 Next**: Enemy AI, combat system, and enhanced level design
+📊 **Playable at**: http://localhost:5173 (after `npm run dev`)
+
+## Technology Stack
+- **Engine**: Three.js (3D graphics)
+- **Build Tool**: Vite (ES6 modules)
+- **Language**: JavaScript (ES6+ classes)
+- **Audio**: Howler.js (planned)
+- **Styling**: CSS3 with retro terminal aesthetic
+
+## Architecture Patterns
+
+### Code Organization
+```
+src/
+├── main.js              # Entry point and game initialization
+├── core/                # Core game systems (Game, InputManager)
+├── entities/            # Player, enemies, items
+├── levels/              # Procedural level generation
+├── weapons/             # Weapon system with rarities
+├── ui/                  # Interface management
+└── utils/               # Utility functions
+```
+
+### Coding Standards
+- **ES6 Modules**: Use import/export syntax
+- **Classes**: Prefer classes for major systems and entities
+- **Console Logging**: Use emoji prefixes for categorization
+  - 🎮 Initialization, 🔫 Weapons, 🗺️ Levels, 🖥️ UI, 💥 Combat
+- **Event-Driven**: Use CustomEvents for inter-system communication
+- **Three.js Patterns**: Scene management, geometry disposal, object pooling
+
+### Naming Conventions
+- **Classes**: PascalCase (e.g., `WeaponSystem`, `Player`)
+- **Methods**: camelCase (e.g., `generateRandomWeapon`, `updateUI`)
+- **Constants**: UPPER_SNAKE_CASE for static values
+- **Files**: PascalCase for classes, camelCase for utilities
+
+## Core Systems
+
+### 1. Game Loop (src/core/Game.js)
+- **Three.js Scene**: Camera, renderer, lighting setup
+- **Update Cycle**: 60fps game loop with delta time
+- **System Management**: Player, level, weapons, UI coordination
+- **Event Handling**: Player death, level completion
+
+### 2. Input System (src/core/InputManager.js)
+- **FPS Controls**: WASD movement, mouse look with pointer lock
+- **Action Triggers**: Shooting, reloading, interaction via CustomEvents
+- **State Tracking**: Key states, mouse deltas, button presses
+
+### 3. Player Controller (src/entities/Player.js)
+- **Movement**: Physics-based with gravity, jumping, crouching
+- **Camera**: First-person with head bobbing and smooth rotation
+- **Combat**: Weapon management, shooting, reloading
+- **Health System**: Damage, healing, death handling
+
+### 4. Level Generation (src/levels/Level.js)
+- **Procedural**: Random maze-like layouts with border walls
+- **Geometry**: Floor, walls, ceiling with Three.js meshes
+- **Lighting**: Multiple point lights for atmosphere
+- **Collision**: Grid-based collision detection system
+
+### 5. Weapon System (src/weapons/)
+- **Templates**: 6 weapon types (Pistol, Shotgun, Assault, SMG, Sniper, Plasma)
+- **Rarities**: 5 levels (Common → Legendary) with stat multipliers
+- **Modifiers**: 10+ enchantments (Explosive, Piercing, Vampiric, etc.)
+- **Generation**: Procedural weapons with random names and stats
+
+### 6. UI Management (src/ui/UIManager.js)
+- **Retro Aesthetic**: Green terminal styling with glow effects
+- **HUD**: Real-time health, ammo, weapon display
+- **Menus**: Start screen, game over, level complete
+- **Notifications**: Toast system for game events
+
+## Development Guidelines
+
+### Adding New Features
+1. **Enemies**: Create `Enemy.js` in `src/entities/` following Player pattern
+2. **Weapons**: Add templates to `WeaponSystem.initializeWeaponTemplates()`
+3. **Levels**: Extend `Level.js` generation algorithms
+4. **UI**: Add screens/panels via `UIManager` methods
+5. **Audio**: Integrate Howler.js for sound effects and music
+
+### Performance Considerations
+- **Object Pooling**: Reuse bullets, particles, enemies
+- **Geometry Disposal**: Clean up Three.js objects in destroy() methods
+- **Level of Detail**: Reduce quality for distant objects
+- **Efficient Collision**: Use spatial partitioning for large levels
+
+### Testing Workflow
+1. `npm run dev` - Start development server
+2. Browser console - Check for errors and game logs
+3. FPS monitoring - Watch performance in dev tools
+4. Manual testing - Movement, shooting, UI interactions
+
+## Game Design Principles
+
+### Roguelike Elements
+- **Procedural Generation**: Every run is unique
+- **Permadeath**: No saves, death resets progress
+- **Meta-Progression**: Permanent upgrades between runs
+- **Random Loot**: Weapons with varying stats and rarities
+
+### FPS Mechanics
+- **Fast-Paced**: Doom-style movement and combat
+- **Weapon Variety**: Different playstyles and strategies
+- **Environmental Design**: Use geometry for tactical gameplay
+- **Visual Feedback**: Clear hit indicators and effects
+
+### Progression Systems
+- **Run-Based**: Collect resources during gameplay
+- **Persistent**: Spend currency on permanent upgrades
+- **Skill-Based**: Player improvement through practice
+- **Discovery**: Unlock new content through achievements
+
+## Common Patterns
+
+### Event Communication
+```javascript
+// Trigger events
+document.dispatchEvent(new CustomEvent('game:shoot'));
+
+// Listen for events
+document.addEventListener('game:shoot', () => this.handleShoot());
+```
+
+### Three.js Object Management
+```javascript
+// Create geometry
+const geometry = new THREE.BoxGeometry(1, 1, 1);
+const material = new THREE.MeshLambertMaterial({ color: 0x666666 });
+const mesh = new THREE.Mesh(geometry, material);
+
+// Track for cleanup
+this.objects.push(mesh);
+this.scene.add(mesh);
+
+// Dispose properly
+geometry.dispose();
+material.dispose();
+```
+
+### Console Logging Style
+```javascript
+console.log('🎮 Game initialized');
+console.log('🔫 Weapon created:', weaponName);
+console.log('🗺️ Level generated');
+console.log('💥 Enemy defeated');
+console.log('🧹 Cleanup complete');
+```
+
+## Next Priority Tasks
+
+### Phase 2: Game Mechanics
+1. **Enemy System**: Basic AI with health, movement, attack
+2. **Combat**: Bullet physics, hit detection, damage application
+3. **Level Features**: Enemy spawns, item pickups, exit portals
+
+### Phase 3: Roguelike Features
+1. **Meta-Progression**: Permanent upgrade system
+2. **Loot Drops**: Weapon pickups from enemies
+3. **Currency**: Scrap metal, energy cores collection
+
+### Phase 4: Polish
+1. **Audio**: Weapon sounds, ambient music, UI feedback
+2. **Effects**: Muzzle flashes, explosions, particles
+3. **Optimization**: Performance improvements, mobile support
+
+## Debug Commands
+- **Check Status**: Server running on port 5173
+- **Console Logs**: Browser dev tools for game state
+- **Performance**: Three.js stats, FPS monitoring
+- **Networking**: Development server at localhost:5173
+
+Remember: This is a playable prototype with solid foundations. Focus on incremental improvements while maintaining the core FPS + roguelike vision. The weapon system and procedural generation are the standout features that make this unique.

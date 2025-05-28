@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoomRL - Roguelike Doom</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            overflow: hidden;
+            cursor: none;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        #ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        #hud {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .hud-panel {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff00;
+            padding: 10px;
+            font-size: 14px;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        #health {
+            color: #ff0000;
+        }
+
+        #ammo {
+            color: #ffff00;
+        }
+
+        #crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00ff00;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00ff00;
+            pointer-events: none;
+        }
+
+        #menu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: all;
+        }
+
+        #menu h1 {
+            font-size: 4rem;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 20px #00ff00;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .menu-button {
+            background: transparent;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            font-family: inherit;
+            font-size: 1.2rem;
+            padding: 15px 30px;
+            margin: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        .menu-button:hover {
+            background: #00ff00;
+            color: #000;
+            box-shadow: 0 0 20px #00ff00;
+        }
+
+        #instructions {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff00;
+            padding: 15px;
+            font-size: 12px;
+            max-width: 300px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 1.5rem;
+            text-shadow: 0 0 10px #00ff00;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+
+        <div id="ui">
+            <div id="crosshair"></div>
+
+            <div id="hud">
+                <div class="hud-panel" id="health">
+                    HEALTH: <span id="healthValue">100</span>
+                </div>
+                <div class="hud-panel" id="ammo">
+                    AMMO: <span id="ammoValue">30/90</span>
+                </div>
+                <div class="hud-panel" id="weapon">
+                    WEAPON: <span id="weaponName">ASSAULT RIFLE</span>
+                </div>
+            </div>
+
+            <div id="instructions">
+                <h3>CONTROLS</h3>
+                <p>WASD - Move</p>
+                <p>Mouse - Look</p>
+                <p>Left Click - Shoot</p>
+                <p>R - Reload</p>
+                <p>E - Interact</p>
+                <p>ESC - Menu</p>
+            </div>
+        </div>
+
+        <div id="menu">
+            <h1>BOOMRL</h1>
+            <p style="margin-bottom: 2rem;">A Roguelike Doom Experience</p>
+            <button class="menu-button" id="startGame">START GAME</button>
+            <button class="menu-button" id="showUpgrades">UPGRADES</button>
+            <button class="menu-button" id="showStats">STATISTICS</button>
+        </div>
+
+        <div id="loading" class="hidden">
+            LOADING...
+        </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>
